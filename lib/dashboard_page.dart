@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
+
   @override
   _DashboardPageState createState() => _DashboardPageState();
 }
@@ -59,22 +61,22 @@ class _DashboardPageState extends State<DashboardPage> {
             // Welcome Message
             Text(
               'Welcome, ${userData?['userName'] ?? 'User'}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Display User Details
             if (userData != null) ...[
-              Text('Age: ${userData?['age'] ?? 'N/A'}', style: TextStyle(color: Colors.white)),
-              Text('Gender: ${userData?['gender'] ?? 'N/A'}', style: TextStyle(color: Colors.white)),
-              Text('Place: ${userData?['place'] ?? 'N/A'}', style: TextStyle(color: Colors.white)),
+              Text('Age: ${userData?['age'] ?? 'N/A'}', style: const TextStyle(color: Colors.white)),
+              Text('Gender: ${userData?['gender'] ?? 'N/A'}', style: const TextStyle(color: Colors.white)),
+              Text('Place: ${userData?['place'] ?? 'N/A'}', style: const TextStyle(color: Colors.white)),
             ],
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Stats Section
-            Text(
+            const Text(
               'Stats',
               style: TextStyle(
                 fontSize: 20,
@@ -82,7 +84,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             // Display Steps and Heart Rate
             if (userData != null) ...[
               Card(
@@ -91,26 +93,26 @@ class _DashboardPageState extends State<DashboardPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.directions_walk, color: Colors.white),
-                  title: Text(
+                  leading: const Icon(Icons.directions_walk, color: Colors.white),
+                  title: const Text(
                     'Steps Today',
                     style: TextStyle(color: Colors.white),
                   ),
                   trailing: Text(
                     '${userData?['steps'] ?? 'N/A'}',
-                    style: TextStyle(color: Colors.white, fontSize: 20),
+                    style: const TextStyle(color: Colors.white, fontSize: 20),
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Card(
                 color: Colors.white.withOpacity(0.2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.favorite, color: Colors.white),
-                  title: Text(
+                  leading: const Icon(Icons.favorite, color: Colors.white),
+                  title: const Text(
                     'Heart Rate',
                     style: TextStyle(color: Colors.white),
                   ),
@@ -119,20 +121,20 @@ class _DashboardPageState extends State<DashboardPage> {
                     children: [
                       Text(
                         '${userData?['heartRate'] ?? 'N/A'} bpm',
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        style: const TextStyle(color: Colors.white, fontSize: 20),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       if (int.tryParse(userData?['heartRate'] ?? '') != null &&
                           int.parse(userData?['heartRate'] ?? '') > 100)
-                        Icon(Icons.warning, color: Colors.red),
+                        const Icon(Icons.monitor_heart, color: Colors.red),
                     ],
                   ),
                 ),
               ),
             ],
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Quick Actions Section
-            Text(
+            const Text(
               'Quick Actions',
               style: TextStyle(
                 fontSize: 20,
@@ -140,7 +142,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             SizedBox(
               height: 50,
               child: ListView(
@@ -153,7 +155,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       Navigator.pushNamed(context, '/exercise');
                     },
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   _buildQuickActionButton(
                     'Health Monitoring',
                     Icons.health_and_safety,
@@ -175,11 +177,11 @@ class _DashboardPageState extends State<DashboardPage> {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, color: Colors.white),
-      label: Text(title, style: TextStyle(color: Colors.white)),
+      label: Text(title, style: const TextStyle(color: Colors.white)),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.blue, // Background color
-        minimumSize: Size(150, 50), // Set a minimum size for the buttons
-        textStyle: TextStyle(fontSize: 16), // Text style for the buttons
+        minimumSize: const Size(150, 50), // Set a minimum size for the buttons
+        textStyle: const TextStyle(fontSize: 16), // Text style for the buttons
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10), // Rounded corners
         ),
