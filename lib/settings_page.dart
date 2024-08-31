@@ -25,6 +25,8 @@ class _SettingsPageState extends State<SettingsPage> {
             .doc(id)
             .set({
           'name': name,
+          'id' : id,
+
 
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Elder added successfully')));
