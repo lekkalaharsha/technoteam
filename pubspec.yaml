@@ -40,6 +40,7 @@ dependencies:
   firebase_auth: ^4.15.2
   dash_chat_2: ^0.0.21
   cloud_firestore:
+  firebase_database: ^10.4.0
 
 dev_dependencies:
   flutter_test:

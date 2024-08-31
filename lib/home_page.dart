@@ -77,17 +77,17 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: _children[_currentIndex], // Display the selected page
           ),
-          SizedBox(height: 20),
+        
           if (userData != null) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Hello, ${userData?['userName'] ?? 'User'}',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            //   child: Text(
+            //     'Hello, ${userData?['userName'] ?? 'User'}',
+            //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
+            //   ),
+            // ),
           ],
-          SizedBox(height: 20),
+
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
