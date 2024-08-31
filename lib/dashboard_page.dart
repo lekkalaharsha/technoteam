@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -10,6 +11,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   User? user;
   Map<String, dynamic>? userData;
+  final DatabaseReference _realtimeDatabase = FirebaseDatabase.instance.ref();
 
   @override
   void initState() {
@@ -20,10 +22,27 @@ class _DashboardPageState extends State<DashboardPage> {
   void _loadUserData() async {
     user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      DocumentSnapshot userDoc =
-          await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+      // Fetch user details from Firestore
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user!.uid)
+          .get();
       setState(() {
         userData = userDoc.data() as Map<String, dynamic>?;
+      });
+
+      // Fetch steps and heart rate from Realtime Database
+      _realtimeDatabase
+          .child('users')
+          .child(userData?['userName'] ?? '')
+          .child('stats')
+          .onValue
+          .listen((event) {
+        final data = event.snapshot.value as Map<dynamic, dynamic>?;
+        setState(() {
+          userData?['steps'] = data?['steps'] ?? 'N/A';
+          userData?['heartRate'] = data?['heartRate'] ?? 'N/A';
+        });
       });
     }
   }
@@ -64,69 +83,55 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             SizedBox(height: 10),
-            StreamBuilder<DocumentSnapshot>(
-              stream: FirebaseFirestore.instance.collection('users').doc(user!.uid).collection('stats').doc('daily').snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                
-                var statsData = snapshot.data?.data() as Map<String, dynamic>?;
-                var steps = statsData?['steps'] ?? 'N/A';
-                var heartRate = statsData?['heartRate'] ?? 'N/A';
-
-                return Column(
-                  children: [
-                    Card(
-                      color: Colors.white.withOpacity(0.2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+            // Display Steps and Heart Rate
+            if (userData != null) ...[
+              Card(
+                color: Colors.white.withOpacity(0.2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  leading: Icon(Icons.directions_walk, color: Colors.white),
+                  title: Text(
+                    'Steps Today',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  trailing: Text(
+                    '${userData?['steps'] ?? 'N/A'}',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              Card(
+                color: Colors.white.withOpacity(0.2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  leading: Icon(Icons.favorite, color: Colors.white),
+                  title: Text(
+                    'Heart Rate',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${userData?['heartRate'] ?? 'N/A'} bpm',
+                        style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
-                      child: ListTile(
-                        leading: Icon(Icons.directions_walk, color: Colors.white),
-                        title: Text(
-                          'Steps Today',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        trailing: Text(
-                          '$steps',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Card(
-                      color: Colors.white.withOpacity(0.2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        leading: Icon(Icons.favorite, color: Colors.white),
-                        title: Text(
-                          'Heart Rate',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '$heartRate bpm',
-                              style: TextStyle(color: Colors.white, fontSize: 20),
-                            ),
-                            SizedBox(width: 10),
-                            if (heartRate is int && heartRate > 100) // Adjust the threshold as needed
-                              Icon(Icons.warning, color: Colors.red),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+                      SizedBox(width: 10),
+                      if (int.tryParse(userData?['heartRate'] ?? '') != null &&
+                          int.parse(userData?['heartRate'] ?? '') > 100)
+                        Icon(Icons.warning, color: Colors.red),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             SizedBox(height: 20),
             // Quick Actions Section
-            
             Text(
               'Quick Actions',
               style: TextStyle(
@@ -136,7 +141,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             SizedBox(height: 10),
-             SizedBox(
+            SizedBox(
               height: 50,
               child: ListView(
                 scrollDirection: Axis.horizontal,
@@ -160,7 +165,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 ],
               ),
             ),
-      
           ],
         ),
       ),
@@ -170,7 +174,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildQuickActionButton(String title, IconData icon, VoidCallback onPressed) {
     return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, color: const Color.fromARGB(255, 4, 3, 3)),
+      icon: Icon(icon, color: Colors.white),
       label: Text(title, style: TextStyle(color: Colors.white)),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.blue, // Background color

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Ensure you import Fire
 import 'package:technoteam/home_page.dart';
 import 'package:technoteam/login_page.dart';
 import 'package:technoteam/utils/colors_utils.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -20,33 +21,35 @@ class _SignupPageState extends State<SignupPage> {
   final _placeController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseDatabase _database = FirebaseDatabase.instance;
 
   void _signup() async {
     if (_passwordController.text == _confirmPasswordController.text) {
       try {
-        UserCredential userCredential =
-            await _auth.createUserWithEmailAndPassword(
+        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
           email: _emailController.text,
           password: _passwordController.text,
         );
 
-        try {
-          await _firestore
-              .collection('users')
-              .doc(userCredential.user?.uid)
-              .set({
-            'email': _emailController.text,
-            'age': _ageController.text,
-            'gender': _genderController.text,
-            'place': _placeController.text,
-            'userName': _userNameController.text
-          });
-        } catch (e) {
-          print("Failed to store user details: $e");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to store user details.')),
-          );
-        }
+        // Store user details in Firestore
+        await _firestore.collection('users').doc(userCredential.user?.uid).set({
+          'email': _emailController.text,
+          'age': _ageController.text,
+          'gender': _genderController.text,
+          'place': _placeController.text,
+          'userName': _userNameController.text,
+        });
+
+        // Create user data node in Realtime Database
+        final username = _userNameController.text;
+        final userRef = _database.reference().child('users').child(username);
+        await userRef.set({
+          'email': _emailController.text,
+          
+          
+
+        });
+
         // Navigate to the main screen
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => HomePage(),
@@ -241,5 +244,6 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  // Utility function to convert HEX color to Flutter color
+  // Utility function to convert
+
 }
