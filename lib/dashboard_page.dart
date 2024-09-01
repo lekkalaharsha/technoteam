@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'elder_monitoring_page.dart'; // Import the new page
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -49,7 +50,7 @@ class _DashboardPageState extends State<DashboardPage> {
         });
 
         // Fetch elder details and stats
-        _fetchElderData();
+        // _fetchElderData();
       }
     } catch (e) {
       // Handle any errors (e.g., network issues)
@@ -57,57 +58,24 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  void _fetchElderData() async {
-    try {
-      // Fetch elder members for this user
-      QuerySnapshot eldersSnapshot = await _firestore
-          .collection('users')
-          .doc(user!.uid)
-          .collection('elders')
-          .get();
-
-      List<Map<String, dynamic>> elderList = [];
-      for (var doc in eldersSnapshot.docs) {
-        var elderData = doc.data() as Map<String, dynamic>;
-        elderList.add(elderData);
-        final elderUsername = elderData['username'] ?? '';
-        
-        _realtimeDatabase
-            .child('users')
-            .child(elderUsername)
-            .child('stats')
-            .onValue
-            .listen((event) {
-          final data = event.snapshot.value as Map<dynamic, dynamic>?;
-          if (data != null) {
-            // Here you can implement any logic to handle alerts or updates
-            // For instance, check if heart rate exceeds a certain threshold
-            if (int.tryParse(data['heartRate']?.toString() ?? '0') != null &&
-                int.parse(data['heartRate']?.toString() ?? '0') > 100) {
-              // Trigger an alert or notification
-              print(
-                  'Alert: ${elderData['username']}\'s heart rate is too high!');
-            }
-            setState(() {
-              elderData['heartRate'] = data['heartRate'] ?? 'N/A';
-              elderData['steps'] = elderData['steps'] ?? 'N/A';
-            });
-          }
-        });
-      }
-      setState(() {
-        userData?['elders'] = elderList;
-      });
-    } catch (e) {
-      // Handle any errors (e.g., network issues)
-      print('Error fetching elder data: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black, // Set background color for better contrast
+      appBar: AppBar(
+        title: Text('Dashboard'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.monitor_heart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ElderMonitoringPage()),
+              );
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -191,46 +159,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
               ),
-            ],
-            const SizedBox(height: 20),
-            // Elder Monitoring Section
-            const Text(
-              'Elder Monitoring',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 10),
-            if (userData != null && userData!['elders'] != null) ...[
-              for (var elder in userData!['elders'])
-                Card(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ListTile(
-                    leading: const Icon(Icons.person, color: Colors.white),
-                    title: Text(
-                      elder['name'] ?? 'Unknown',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    subtitle: Text(
-                      'Heart Rate: ${elder['heartRate'] ?? 'N/A'} bpm\nSteps Today: ${elder['steps'] ?? 'N/A'}',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert, color: Colors.white),
-                      onPressed: () {
-                        // Handle more options if needed
-                      },
-                    ),
-                  ),
-                ),
-            ] else ...[
-              const Text('No elder members to monitor.',
-                  style: TextStyle(color: Colors.white)),
             ],
             const SizedBox(height: 20),
             // Quick Actions Section
