@@ -50,6 +50,7 @@ class ExercisePage extends StatelessWidget {
                     final name = category['name'] ?? 'Unknown';
                     final icon = category['icon'] ?? '🏋️‍♂️';
 
+
                     return Card(
                       color: Colors.white.withOpacity(0.2),
                       shape: RoundedRectangleBorder(
@@ -68,7 +69,7 @@ class ExercisePage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategoryExercisesPage(categoryName: name),
+                              builder: (context) => CategoryExercisesPage(categoryName: name, id: category['id'],),
                             ),
                           );
                         },

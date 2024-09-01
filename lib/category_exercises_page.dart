@@ -4,14 +4,15 @@ import 'video_player_page.dart';
 
 class CategoryExercisesPage extends StatelessWidget {
   final String categoryName;
+  final String id;
 
-  CategoryExercisesPage({required this.categoryName});
+  CategoryExercisesPage({required this.categoryName, required this.id});
 
   // Fetch exercises by category from Firestore
   Stream<QuerySnapshot> fetchExercisesByCategory(String category) {
     return FirebaseFirestore.instance
         .collection('exercise_videos')
-        .doc('Koi3Cyis1jigtNKnYdNE') // Document for the specific category
+        .doc(id) // Document for the specific category
         .collection('exercises') // Subcollection containing exercises
         .snapshots();
   }
@@ -19,7 +20,6 @@ class CategoryExercisesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text('$categoryName Exercises'),
@@ -32,17 +32,20 @@ class CategoryExercisesPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
+            return Center(
+                child: Text('Error: ${snapshot.error}',
+                    style: TextStyle(color: Colors.white)));
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No exercises available for $categoryName', style: TextStyle(color: Colors.white)));
+            return Center(
+                child: Text('No exercises available for $categoryName',
+                    style: TextStyle(color: Colors.white)));
           }
 
           final exercises = snapshot.data!.docs;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -60,9 +63,11 @@ class CategoryExercisesPage extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: exercises.length,
                   itemBuilder: (context, index) {
-                    final exercise = exercises[index].data() as Map<String, dynamic>;
+                    final exercise =
+                        exercises[index].data() as Map<String, dynamic>;
                     final name = exercise['name'] ?? 'Unknown';
-                    final description = exercise['description'] ?? 'No description available';
+                    final description =
+                        exercise['description'] ?? 'No description available';
                     final videoUrl = exercise['videoUrl'];
                     final icon = exercise['icon'] ?? '🏋️‍♂️';
 
@@ -78,7 +83,8 @@ class CategoryExercisesPage extends StatelessWidget {
                         ),
                         title: Text(
                           name,
-                          style: const TextStyle(color: Colors.white, fontSize: 20),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 20),
                         ),
                         subtitle: Text(
                           description,
@@ -86,15 +92,18 @@ class CategoryExercisesPage extends StatelessWidget {
                         ),
                         onTap: () {
                           if (videoUrl != null && videoUrl.isNotEmpty) {
+                            print(videoUrl);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => VideoPlayerPage(videoUrl: videoUrl),
+                                builder: (context) =>
+                                    VideoPlayerPage(videoUrl: videoUrl),
                               ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Video URL is missing')),
+                              const SnackBar(
+                                  content: Text('Video URL is missing')),
                             );
                           }
                         },

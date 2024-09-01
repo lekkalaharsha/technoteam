@@ -12,43 +12,60 @@ class VideoPlayerPage extends StatefulWidget {
 
 class _VideoPlayerPageState extends State<VideoPlayerPage> {
   late VideoPlayerController _controller;
+  bool _isInitialized = false;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.network(widget.videoUrl)
+      ..addListener(() {
+        if (_controller.value.hasError) {
+          setState(() {
+            _error = _controller.value.errorDescription;
+          });
+        }
+      })
       ..initialize().then((_) {
-        setState(() {}); // Ensure the first frame is shown after the video is initialized
+        setState(() {
+          _isInitialized = true;
+        });
+      }).catchError((error) {
+        setState(() {
+          _error = error.toString();
+        });
       });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Exercise Video'),
+        title: const Text('Video Player'),
         backgroundColor: Colors.black,
       ),
+      backgroundColor: Colors.black,
       body: Center(
-        child: _controller.value.isInitialized
-            ? AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                child: VideoPlayer(_controller),
+        child: _error != null
+            ? Text(
+                'Error: $_error',
+                style: const TextStyle(color: Colors.red, fontSize: 18),
               )
-            : const CircularProgressIndicator(),
+            : _isInitialized
+                ? AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: VideoPlayer(_controller),
+                  )
+                : const CircularProgressIndicator(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           setState(() {
-            _controller.value.isPlaying
-                ? _controller.pause()
-                : _controller.play();
+            if (_controller.value.isPlaying) {
+              _controller.pause();
+            } else {
+              _controller.play();
+            }
           });
         },
         child: Icon(
@@ -56,5 +73,11 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
   }
 }

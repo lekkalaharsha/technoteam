@@ -46,6 +46,8 @@ dependencies:
   video_player: ^2.2.10
   http: 
   permission_handler: 
+  googleapis: ^9.0.0
+  googleapis_auth: ^1.3.0
 
 dev_dependencies:
   flutter_test:
