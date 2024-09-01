@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:technoteam/RoomPage.dart';
+import 'package:technoteam/SchedulePage.dart';
+import 'package:technoteam/chatscreen.dart';
 import 'login_page.dart';
 import 'dashboard_page.dart';
 import 'exercise_page.dart';
 import 'health_monitoring_page.dart';
 import 'settings_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Import the SchedulePage
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -16,39 +19,37 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? user;
-  Map<String, dynamic>? userData;
   int _currentIndex = 0;
+  final PageController _pageController = PageController();
+
+  final List<Widget> _children = [
+    DashboardPage(),
+    ExercisePage(),
+    Chatscreen(),
+    SchedulePage(), // Add the SchedulePage
+    SettingsPage(),
+    RoomPage()
+  ];
 
   @override
   void initState() {
     super.initState();
     user = _auth.currentUser;
-    _loadUserData();
   }
 
-  void _loadUserData() async {
-    if (user != null) {
-      DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(user!.uid).get();
-      setState(() {
-        userData = userDoc.data() as Map<String, dynamic>?;
-      });
-    }
-  }
-
-  final List<Widget> _children = [
-    DashboardPage(),
-    ExercisePage(),
-    HealthMonitoringPage(),
-    SettingsPage(),
-  ];
-
-  void onTabTapped(int index) {
+  void onPageChanged(int index) {
     setState(() {
       _currentIndex = index;
     });
+  }
+
+  void onTabTapped(int index) {
+    _pageController.animateToPage(
+      index,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _logout() async {
@@ -61,6 +62,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         actions: [
           IconButton(
@@ -70,55 +72,87 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: _children[_currentIndex], // Display the selected page
-          ),
-        
-          if (userData != null) ...[
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            //   child: Text(
-            //     'Hello, ${userData?['userName'] ?? 'User'}',
-            //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
-            //   ),
-            // ),
-          ],
-
-        ],
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: onPageChanged,
+        children: _children,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: onTabTapped,
-        currentIndex: _currentIndex,
-        selectedItemColor: hextStringToColor("5E61F4"),
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        color: Colors.black, // Background color for the nav bar
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(_children.length, (index) {
+              return GestureDetector(
+                onTap: () => onTabTapped(index),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _getIconForIndex(index),
+                        color: _currentIndex == index
+                            ? hextStringToColor("5E61F4")
+                            : Colors.grey,
+                      ),
+                      Text(
+                        _getLabelForIndex(index),
+                        style: TextStyle(
+                          color: _currentIndex == index
+                              ? hextStringToColor("5E61F4")
+                              : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center),
-            label: 'Exercises',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety),
-            label: 'Health',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-          BottomNavigationBarItem(
-      icon: Icon(Icons.settings),
-      label: 'Settings',
-    ),
-        ],
+        ),
       ),
     );
+  }
+
+  IconData _getIconForIndex(int index) {
+    switch (index) {
+      case 0:
+        return Icons.dashboard;
+      case 1:
+        return Icons.fitness_center;
+      case 2:
+        return Icons.healing_sharp;
+      case 3:
+        return Icons.schedule_rounded;
+      case 4:
+        return Icons.settings;
+      case 5:
+        return Icons.meeting_room_outlined;
+      default:
+        return Icons.dashboard;
+    }
+  }
+
+  String _getLabelForIndex(int index) {
+    switch (index) {
+      case 0:
+        return 'Dashboard';
+      case 1:
+        return 'Exercises';
+      case 2:
+        return 'Health';
+      case 3:
+        return 'Schedule';
+      case 4:
+        return 'Settings';
+      case 5:
+        return 'ROOM';
+      default:
+        return 'Dashboard';
+    }
   }
 
   Color hextStringToColor(String hexColor) {

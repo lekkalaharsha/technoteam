@@ -12,6 +12,7 @@ class ExercisePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar( title: const Text ('exercise plan'),),
       body: StreamBuilder<QuerySnapshot>(
         stream: fetchCategories(),
         builder: (context, snapshot) {
@@ -29,17 +30,12 @@ class ExercisePage extends StatelessWidget {
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
+
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
-                const Text(
-                  'Exercise Categories',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+
                 const SizedBox(height: 20),
                 ListView.builder(
                   shrinkWrap: true,

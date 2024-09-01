@@ -49,6 +49,11 @@ dependencies:
   googleapis: 
   googleapis_auth: 
   flutter_local_notifications:
+  url_launcher: ^6.1.7
+  webview_flutter: 
+
+
+
 
 dev_dependencies:
   flutter_test:
