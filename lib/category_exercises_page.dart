@@ -1,19 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'category_exercises_page.dart'; // Import the new page
+import 'video_player_page.dart';
 
-class ExercisePage extends StatelessWidget {
-  // Fetch categories from Firestore
-  Stream<QuerySnapshot> fetchCategories() {
-    return FirebaseFirestore.instance.collection('exercise_videos').snapshots();
+class CategoryExercisesPage extends StatelessWidget {
+  final String categoryName;
+
+  CategoryExercisesPage({required this.categoryName});
+
+  // Fetch exercises by category from Firestore
+  Stream<QuerySnapshot> fetchExercisesByCategory(String category) {
+    return FirebaseFirestore.instance
+        .collection('exercise_videos')
+        .doc('Koi3Cyis1jigtNKnYdNE') // Document for the specific category
+        .collection('exercises') // Subcollection containing exercises
+        .snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text('$categoryName Exercises'),
+        backgroundColor: Colors.black,
+      ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: fetchCategories(),
+        stream: fetchExercisesByCategory(categoryName),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -22,18 +35,19 @@ class ExercisePage extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No categories available', style: TextStyle(color: Colors.white)));
+            return Center(child: Text('No exercises available for $categoryName', style: TextStyle(color: Colors.white)));
           }
 
-          final categories = snapshot.data!.docs;
+          final exercises = snapshot.data!.docs;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
+            
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Exercise Categories',
+                  'Exercises',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -44,11 +58,13 @@ class ExercisePage extends StatelessWidget {
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: categories.length,
+                  itemCount: exercises.length,
                   itemBuilder: (context, index) {
-                    final category = categories[index].data() as Map<String, dynamic>;
-                    final name = category['name'] ?? 'Unknown';
-                    final icon = category['icon'] ?? '🏋️‍♂️';
+                    final exercise = exercises[index].data() as Map<String, dynamic>;
+                    final name = exercise['name'] ?? 'Unknown';
+                    final description = exercise['description'] ?? 'No description available';
+                    final videoUrl = exercise['videoUrl'];
+                    final icon = exercise['icon'] ?? '🏋️‍♂️';
 
                     return Card(
                       color: Colors.white.withOpacity(0.2),
@@ -64,13 +80,23 @@ class ExercisePage extends StatelessWidget {
                           name,
                           style: const TextStyle(color: Colors.white, fontSize: 20),
                         ),
+                        subtitle: Text(
+                          description,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CategoryExercisesPage(categoryName: name),
-                            ),
-                          );
+                          if (videoUrl != null && videoUrl.isNotEmpty) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VideoPlayerPage(videoUrl: videoUrl),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Video URL is missing')),
+                            );
+                          }
                         },
                       ),
                     );

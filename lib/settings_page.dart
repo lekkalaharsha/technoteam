@@ -37,6 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(title: Text('Settings')),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -51,6 +52,7 @@ class _SettingsPageState extends State<SettingsPage> {
               controller: _elderIdController,
               decoration: InputDecoration(labelText: 'Elder ID'),
             ),
+            SizedBox(height: 10,),
             ElevatedButton(
               onPressed: _addElderProfile,
               child: Text('Add Elder'),
