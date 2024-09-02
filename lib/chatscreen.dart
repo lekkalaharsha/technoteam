@@ -36,7 +36,7 @@ class _ChatscreenState extends State<Chatscreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("AI for all"),
+        title: const Text("ASK ME"),
       ),
       body: _buildUI(),
     );
