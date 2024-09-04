@@ -16,21 +16,47 @@ class _SettingsPageState extends State<SettingsPage> {
     final id = _elderIdController.text;
 
     if (name.isNotEmpty && id.isNotEmpty) {
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .collection('elders')
-            .doc(id)
-            .set({
-          'name': name,
-          'id' : id,
+      try {
+        User? currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          // Check if the elder ID already exists
+          final docSnapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUser.uid)
+              .collection('elders')
+              .doc(id)
+              .get();
 
-
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Elder added successfully')));
+          if (docSnapshot.exists) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Elder ID already exists')),
+            );
+          } else {
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(currentUser.uid)
+                .collection('elders')
+                .doc(id)
+                .set({
+              'name': name,
+              'id': id,
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Elder added successfully')),
+            );
+            _elderNameController.clear();
+            _elderIdController.clear();
+          }
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add elder: $e')),
+        );
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
     }
   }
 
@@ -38,24 +64,26 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(title: Text('Settings')),
+      appBar: AppBar(title: const Text('Settings')),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
+            TextFormField(
               controller: _elderNameController,
-              decoration: InputDecoration(labelText: 'Elder Name'),
+              decoration: const InputDecoration(labelText: 'Elder Name'),
+              validator: (value) => value!.isEmpty ? 'Enter elder name' : null,
             ),
-            SizedBox(height: 10,),
-            TextField(
+            const SizedBox(height: 10),
+            TextFormField(
               controller: _elderIdController,
-              decoration: InputDecoration(labelText: 'Elder ID'),
+              decoration: const InputDecoration(labelText: 'Elder ID'),
+              validator: (value) => value!.isEmpty ? 'Enter elder ID' : null,
             ),
-            SizedBox(height: 10,),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: _addElderProfile,
-              child: Text('Add Elder'),
+              child: const Text('Add Elder'),
             ),
           ],
         ),

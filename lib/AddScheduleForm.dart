@@ -51,6 +51,7 @@ class _AddScheduleFormState extends State<AddScheduleForm> {
         await _firestore.collection('schedules').add({
           'userId': user.uid,
           'exerciseType': _exerciseType,
+          
           'date': _selectedDate,
           'time': _selectedTime!.format(context),
           'notificationsEnabled': _notificationsEnabled,

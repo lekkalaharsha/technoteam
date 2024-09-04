@@ -10,10 +10,10 @@ import 'home_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-    Gemini.init(
+  Gemini.init(
     apiKey: GEMINI_API_KEY,
   );
- // Initialize Firebase
+  // Initialize Firebase
   runApp(MyApp());
 }
 
@@ -30,7 +30,8 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: hextStringToColor("5E61F4"),
+            foregroundColor: Colors.white,
+            backgroundColor: hextStringToColor("5E61F4"),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
@@ -65,7 +66,8 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: FirebaseAuth.instance.authStateChanges(), // Listen to auth changes
+      stream:
+          FirebaseAuth.instance.authStateChanges(), // Listen to auth changes
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           if (snapshot.hasData) {
