@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:technoteam/home_page.dart';
 import 'package:technoteam/signup_page.dart';
 
@@ -11,14 +10,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   void _login() async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
       // Navigate to the main screen
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => HomePage(),
