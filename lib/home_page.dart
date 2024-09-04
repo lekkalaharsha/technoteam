@@ -6,7 +6,6 @@ import 'package:technoteam/chatscreen.dart';
 import 'login_page.dart';
 import 'dashboard_page.dart';
 import 'exercise_page.dart';
-import 'health_monitoring_page.dart';
 import 'settings_page.dart';
 // Import the SchedulePage
 

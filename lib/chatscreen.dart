@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
@@ -44,7 +44,7 @@ class _ChatscreenState extends State<Chatscreen> {
 
   Widget _buildUI() {
     return DashChat(
-      inputOptions: InputOptions(trailing: []),
+      inputOptions: const InputOptions(trailing: []),
       currentUser: currentUser,
       onSend: _sendMessage,
       messages: messages,
