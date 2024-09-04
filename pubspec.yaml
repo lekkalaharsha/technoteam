@@ -46,8 +46,6 @@ dependencies:
   video_player: ^2.2.10
   http: 
   permission_handler: 
-  googleapis: 
-  googleapis_auth: 
   flutter_local_notifications:
 
 
